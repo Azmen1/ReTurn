@@ -13,6 +13,7 @@ class Player:
 		self.level = base_stats["level"]
 		self.xp = base_stats["xp"]
 		self.inventory = []
+		self.defendendo = False
 
 	def esta_vivo(self):
 		return self.hp > 0
