@@ -13,11 +13,16 @@ def aplicar_dano(alvo: Any, dano: int) -> int:
 	return dano_aplicado
 
 
-def calcular_dano(atacante: Any, alvo: Any) -> int:
-	"""Apply damage to target HP using ATK and DEF, returning applied damage."""
+def calcular_dano_bruto(atacante: Any, alvo: Any) -> int:
+	"""Calculate raw damage using ATK and DEF without mutating target HP."""
 	ataque = max(0, int(getattr(atacante, "atk", 0)))
 	defesa = max(0, int(getattr(alvo, "def_", 0)))
 
-	dano_recebido = int(ataque * (100 / (100 + defesa)))
+	return int(ataque * (100 / (100 + defesa)))
+
+
+def calcular_dano(atacante: Any, alvo: Any) -> int:
+	"""Backward-compatible helper that calculates and applies damage."""
+	dano_recebido = calcular_dano_bruto(atacante, alvo)
 	aplicar_dano(alvo, dano_recebido)
 	return dano_recebido

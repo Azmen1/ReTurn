@@ -1,7 +1,8 @@
 import pyxel
 from entities.enemy import Enemy
 from entities.player import Player
-from systems.combat import build_turn_order, calcular_dano
+from systems.combat import build_turn_order, calcular_dano_bruto, aplicar_dano
+from systems.loot import gerar_loot
 
 MENU = "MENU"
 BATTLE = "BATTLE"
@@ -19,8 +20,8 @@ class MenuState:
 
 
 class BattleState:
-	def __init__(self, change_state):
-		self.player = Player()
+	def __init__(self, change_state, player):
+		self.player = player
 		self.enemy = Enemy()
 		self.change_state = change_state
 		self.round_number = 0
@@ -29,12 +30,16 @@ class BattleState:
 		self.turn_index = 0
 		self.round_active = False
 		self.waiting_player_action = False
+		self.waiting_item_menu = False
 		self.action_options = ["ATACAR", "ITEM", "DEFENDER", "FUGIR"]
 		self.selected_action = 0
+		self.selected_item_index = 0
+		self.victory_resolved = False
+		self.player.defendendo = False
 
 	def update(self):
 		if self.enemy.hp <= 0:
-			self.change_state(VICTORY)
+			self.ir_para_vitoria()
 			return
 
 		if self.player.hp <= 0:
@@ -45,6 +50,9 @@ class BattleState:
 			return
 
 		if self.waiting_player_action:
+			if self.waiting_item_menu:
+				self.update_item_menu()
+				return
 			self.update_player_action_menu()
 			return
 
@@ -56,6 +64,7 @@ class BattleState:
 		self.turn_order = build_turn_order([self.player, self.enemy])
 		self.turn_index = 0
 		self.round_active = True
+		self.player.defendendo = False
 
 		nomes = {
 			self.player: "PLAYER",
@@ -84,6 +93,8 @@ class BattleState:
 				break
 
 			if combatente is self.player:
+				# Defense never carries to a fresh player decision point.
+				self.player.defendendo = False
 				self.waiting_player_action = True
 				self.selected_action = 0
 				self.registrar_log("ESCOLHA A ACAO")
@@ -99,25 +110,25 @@ class BattleState:
 			if not self.enemy.esta_vivo():
 				self.round_active = False
 				self.waiting_player_action = False
-				self.change_state(VICTORY)
+				self.ir_para_vitoria()
 				return
 
 			self.turn_index += 1
 
 		self.round_active = False
+		self.player.defendendo = False
 		if self.player.esta_vivo() and self.enemy.esta_vivo():
 			self.registrar_log("SPACE: NEXT ROUND")
 
 	def executar_ataque(self, atacante, alvo, nomes):
-		hp_antes = alvo.hp
-		dano = calcular_dano(atacante, alvo)
+		reduzir_defesa = atacante is self.enemy and alvo is self.player and self.player.defendendo
+		dano = calcular_dano_bruto(atacante, alvo)
 
-		if atacante is self.enemy and alvo is self.player and self.player.defendendo:
-			dano_defendido = dano // 2
-			recuperado = dano - dano_defendido
-			alvo.hp = min(alvo.max_hp, alvo.hp + recuperado)
-			dano = hp_antes - alvo.hp
+		if reduzir_defesa:
+			dano = dano // 2
 			self.player.defendendo = False
+
+		dano = aplicar_dano(alvo, dano)
 
 		acao = f"{nomes[atacante]} atacou {nomes[alvo]} ({dano})"
 		self.registrar_log(acao)
@@ -139,10 +150,36 @@ class BattleState:
 			or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)
 		)
 		if confirmou:
-			if self.acao_desabilitada(self.selected_action):
-				self.registrar_log("ITEM: VAZIO")
-				return
 			self.executar_acao_player(self.selected_action)
+
+	def update_item_menu(self):
+		if not self.player.inventory:
+			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.KEY_X):
+				self.waiting_item_menu = False
+			if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_KP_ENTER) or pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
+				self.registrar_log("INVENTARIO VAZIO")
+				self.waiting_item_menu = False
+			return
+
+		if pyxel.btnp(pyxel.KEY_UP):
+			self.selected_item_index = (self.selected_item_index - 1) % len(self.player.inventory)
+
+		if pyxel.btnp(pyxel.KEY_DOWN):
+			self.selected_item_index = (self.selected_item_index + 1) % len(self.player.inventory)
+
+		cancelou = pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.KEY_X)
+		if cancelou:
+			self.waiting_item_menu = False
+			return
+
+		confirmou = (
+			pyxel.btnp(pyxel.KEY_RETURN)
+			or pyxel.btnp(pyxel.KEY_KP_ENTER)
+			or pyxel.btnp(pyxel.KEY_Z)
+			or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)
+		)
+		if confirmou:
+			self.usar_item_selecionado()
 
 	def executar_acao_player(self, action_index):
 		nomes = {
@@ -155,13 +192,18 @@ class BattleState:
 			if not self.enemy.esta_vivo():
 				self.waiting_player_action = False
 				self.round_active = False
-				self.change_state(VICTORY)
+				self.ir_para_vitoria()
 				return
 		elif action_index == 1:  # ITEM
-			self.registrar_log("ITEM placeholder")
+			self.abrir_menu_itens()
+			return
 		elif action_index == 2:  # DEFENDER
-			self.player.defendendo = True
-			self.registrar_log("PLAYER entrou em DEFESA")
+			if self.inimigo_ainda_age_nesta_rodada():
+				self.player.defendendo = True
+				self.registrar_log("PLAYER entrou em DEFESA")
+			else:
+				self.player.defendendo = False
+				self.registrar_log("DEFESA sem alvo nesta rodada")
 		elif action_index == 3:  # FUGIR
 			chance = self.calcular_chance_fuga()
 			sucesso = pyxel.rndi(1, 100) <= chance
@@ -171,17 +213,13 @@ class BattleState:
 				return
 			self.registrar_log(f"PLAYER falhou ao FUGIR ({chance}%)")
 
-		self.waiting_player_action = False
-		self.turn_index += 1
-		self.processar_fila_turnos()
+		self.consumir_turno_player()
 
 	def registrar_log(self, mensagem):
 		self.battle_log.append(mensagem)
 		print(mensagem)
 
 	def acao_desabilitada(self, action_index):
-		if action_index == 1:
-			return len(self.player.inventory) == 0
 		return False
 
 	def calcular_chance_fuga(self):
@@ -191,6 +229,63 @@ class BattleState:
 		luck_bonus = (self.player.luck - self.enemy.luck) * 3
 		chance = 30 + speed_bonus + luck_bonus
 		return max(10, min(90, chance))
+
+	def inimigo_ainda_age_nesta_rodada(self):
+		for i in range(self.turn_index + 1, len(self.turn_order)):
+			if self.turn_order[i] is self.enemy and self.enemy.esta_vivo():
+				return True
+		return False
+
+	def abrir_menu_itens(self):
+		self.waiting_item_menu = True
+		self.selected_item_index = 0
+		if self.player.inventory:
+			self.registrar_log("ESCOLHA UM ITEM")
+		else:
+			self.registrar_log("INVENTARIO VAZIO")
+
+	def usar_item_selecionado(self):
+		if not self.player.inventory:
+			self.waiting_item_menu = False
+			return
+
+		index = self.selected_item_index % len(self.player.inventory)
+		item = self.player.inventory.pop(index)
+		self.waiting_item_menu = False
+
+		if item.tipo == "cura":
+			cura = min(int(item.valor), self.player.max_hp - self.player.hp)
+			self.player.hp += cura
+			self.registrar_log(f"PLAYER usou {item.nome} (+{cura} HP)")
+		else:
+			self.registrar_log(f"PLAYER usou {item.nome}")
+
+		self.consumir_turno_player()
+
+	def consumir_turno_player(self):
+		self.waiting_player_action = False
+		self.waiting_item_menu = False
+		self.turn_index += 1
+		self.processar_fila_turnos()
+
+	def ir_para_vitoria(self):
+		payload = self.resolver_recompensa_vitoria()
+		self.change_state(VICTORY, payload)
+
+	def resolver_recompensa_vitoria(self):
+		if self.victory_resolved:
+			return {"itens": [], "xp": 0}
+
+		itens, xp = gerar_loot(self.enemy)
+		self.player.inventory.extend(itens)
+		self.player.xp += xp
+		self.victory_resolved = True
+
+		for item in itens:
+			self.registrar_log(f"LOOT: {item.nome}")
+		self.registrar_log(f"XP +{xp}")
+
+		return {"itens": itens, "xp": xp}
 
 	def draw(self):
 		pyxel.cls(1)
@@ -216,18 +311,23 @@ class BattleState:
 			pyxel.text(8, 78 + idx * 8, line, 7)
 
 		if self.waiting_player_action:
-			pyxel.text(94, 70, "ACAO", 10)
-			for idx, option in enumerate(self.action_options):
-				disabled = self.acao_desabilitada(idx)
-				label = "ITEM (VAZIO)" if idx == 1 and disabled else option
-				cursor = ">" if idx == self.selected_action else " "
-				if disabled:
-					color = 5
-				elif idx == self.selected_action:
-					color = 10
+			if self.waiting_item_menu:
+				pyxel.text(94, 70, "ITENS", 10)
+				if not self.player.inventory:
+					pyxel.text(90, 80, "(VAZIO)", 5)
+					pyxel.text(72, 96, "ESC/X: VOLTAR", 6)
 				else:
-					color = 7
-				pyxel.text(90, 80 + idx * 8, f"{cursor} {label}", color)
+					for idx, item in enumerate(self.player.inventory):
+						cursor = ">" if idx == self.selected_item_index else " "
+						color = 10 if idx == self.selected_item_index else 7
+						pyxel.text(66, 80 + idx * 8, f"{cursor} {item.nome} ({item.valor})", color)
+					pyxel.text(64, 112, "ESC/X: VOLTAR", 6)
+			else:
+				pyxel.text(94, 70, "ACAO", 10)
+				for idx, option in enumerate(self.action_options):
+					cursor = ">" if idx == self.selected_action else " "
+					color = 10 if idx == self.selected_action else 7
+					pyxel.text(90, 80 + idx * 8, f"{cursor} {option}", color)
 
 class GameOverState:
 	def update(self):
@@ -241,6 +341,11 @@ class GameOverState:
 
 
 class VictoryState:
+	def __init__(self, payload=None):
+		payload = payload or {}
+		self.xp = int(payload.get("xp", 0))
+		self.itens = payload.get("itens", [])
+
 	def update(self):
 		if pyxel.btnp(pyxel.KEY_R):
 			print("Reiniciando para MENU")
@@ -248,29 +353,40 @@ class VictoryState:
 	def draw(self):
 		pyxel.cls(3)
 		pyxel.text(48, 56, "VITORIA", 7)
-		pyxel.text(26, 68, "Press R to restart", 6)
+		pyxel.text(26, 68, f"XP GANHO: {self.xp}", 6)
+		if self.itens:
+			nomes = ", ".join(item.nome for item in self.itens)
+			pyxel.text(8, 78, f"LOOT: {nomes}", 10)
+		else:
+			pyxel.text(8, 78, "LOOT: NENHUM", 5)
+		pyxel.text(26, 98, "Press R to restart", 6)
 
 class App:
 	def __init__(self):
+		self.player = Player()
 		self.state_classes = {
-			MENU: lambda: MenuState(),
-			BATTLE: lambda: BattleState(self.change_state),
-			GAME_OVER: lambda: GameOverState(),
-			VICTORY: lambda: VictoryState(),
+			MENU: lambda payload=None: MenuState(),
+			BATTLE: lambda payload=None: BattleState(self.change_state, self.player),
+			GAME_OVER: lambda payload=None: GameOverState(),
+			VICTORY: lambda payload=None: VictoryState(payload),
 		}
-		self.current_state = self.state_classes[MENU]()
+		self.current_state = self.state_classes[MENU](None)
 
 		pyxel.init(160, 120, title="ReTurn")
 		pyxel.run(self.update, self.draw)
 
-	def change_state(self, state_name):
-		self.current_state = self.state_classes[state_name]()
+	def change_state(self, state_name, payload=None):
+		self.current_state = self.state_classes[state_name](payload)
 
 	def update(self):
 		if isinstance(self.current_state, MenuState) and pyxel.btnp(pyxel.KEY_SPACE):
+			if self.player.hp <= 0:
+				self.player = Player()
 			self.change_state(BATTLE)
 
 		if (isinstance(self.current_state, GameOverState) or isinstance(self.current_state, VictoryState)) and pyxel.btnp(pyxel.KEY_R):
+			if isinstance(self.current_state, GameOverState):
+				self.player = Player()
 			self.change_state(MENU)
 
 		self.current_state.update()
@@ -278,4 +394,5 @@ class App:
 	def draw(self):
 		self.current_state.draw()
 
-App()
+if __name__ == "__main__":
+	App()
