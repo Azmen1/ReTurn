@@ -13,5 +13,8 @@ class Enemy:
 		self.luck = base_stats["luck"]
 		self.level = base_stats["level"]
 
+	def esta_vivo(self):
+		return self.hp > 0
+
 	def escolher_acao(self):
 		return "atacar"
