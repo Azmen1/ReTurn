@@ -1,6 +1,5 @@
 from data.balance import ENEMY_BASE_STATS
 
-
 class Enemy:
 	def __init__(self, stats=None):
 		base_stats = ENEMY_BASE_STATS if stats is None else stats

@@ -18,3 +18,16 @@ ENEMY_BASE_STATS = {
 	"luck": 2,
 	"level": 1,
 }
+
+LEVEL_UP_POINTS = 3
+
+STAT_POINT_VALUE = {
+	"hp": 5,
+	"atk": 1,
+	"def_": 1,
+	"speed": 1,
+	"luck": 1,
+}
+
+XP_BASE = 20
+XP_GROWTH = 15
