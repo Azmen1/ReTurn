@@ -14,6 +14,8 @@ class Player:
 		self.xp = base_stats["xp"]
 		self.inventory = []
 		self.defendendo = False
+		self.contra_atacando = False
+		self.equipamento = {"arma": None, "armadura": None}
 
 	def esta_vivo(self):
 		return self.hp > 0

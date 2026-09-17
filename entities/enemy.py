@@ -17,3 +17,4 @@ class Enemy:
 
 	def escolher_acao(self):
 		return "atacar"
+	
