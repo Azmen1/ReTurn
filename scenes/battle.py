@@ -1,7 +1,7 @@
 import pyxel
 from entities.enemy import Enemy
 from entities.player import Player
-from systems.combat import build_turn_order, calcular_dano_bruto, calcular_dano, obter_ataque_total, obter_defesa_total
+from systems.combat import build_turn_order, calcular_dano, obter_ataque_total, obter_defesa_total
 from systems.loot import gerar_loot
 from systems.progression import calcular_tier, gerar_stats_inimigo, verificar_level_up
 
@@ -370,9 +370,4 @@ class BattleState:
 					x = 10 + column * 75
 					y = 80 + row * 18
 					pyxel.rectb(x, y, 68, 15, color)
-					texto = option
-					if idx == 0:
-						dano = calcular_dano_bruto(self.player, self.enemy)
-						dano = min(self.enemy.hp, dano)
-						texto = f"ATACAR {dano}"
-					pyxel.text(x + 5, y + 4, texto, color)
+					pyxel.text(x + 5, y + 4, option, color)
