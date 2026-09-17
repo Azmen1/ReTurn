@@ -1,13 +1,15 @@
 class Item:
-	def __init__(self, nome, tipo, valor=0, *, bonus_atk=0, bonus_defesa=0):
+	def __init__(self, nome, tipo, valor=0, *, bonus_atk=0, bonus_defesa=0, habilidade=None):
 		self.nome = nome
 		self.tipo = tipo
 		self.valor = valor
 		self.bonus_atk = int(bonus_atk)
 		self.bonus_defesa = int(bonus_defesa)
+		self.habilidade = habilidade
 		self.efeito = {
 			"tipo": tipo,
 			"valor": valor,
+			"habilidade": habilidade,
 		}
 
 	def __repr__(self):

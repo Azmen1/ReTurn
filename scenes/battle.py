@@ -252,15 +252,15 @@ class BattleState:
 		index = self.selected_item_index % len(self.player.inventory)
 		item = self.player.inventory[index]
 
-		if item.tipo in self.player.equipamento:
-			anterior = self.player.equipamento[item.tipo]
+		if item.tipo in ("arma", "armadura"):
+			anterior = self.player.equipamentos[item.tipo]
+			self.player.equipamentos[item.tipo] = item
 			self.player.inventory.pop(index)
-			self.player.equipamento[item.tipo] = item
 			if anterior is not None:
-				self.player.inventory.pop(index)
+				self.player.inventory.append(anterior)
 			self.registrar_log(f"PLAYER equipou {item.nome}")
 
-		elif item.tipo == "cura":
+		elif item.tipo == "cura" or item.tipo == "totem" and item.habilidade == "cura":
 			cura = min(max(0, int(item.valor)), self.player.max_hp - self.player.hp)
 			if cura <= 0:
 				self.registrar_log("SEM HP PARA RECUPERAR")
@@ -268,6 +268,15 @@ class BattleState:
 			self.player.inventory.pop(index)
 			self.player.hp += cura
 			self.registrar_log(f"PLAYER usou {item.nome} (+{cura} HP)")
+		elif item.tipo in ("buff_atk", "buff_defesa") or item.tipo == "totem":
+			self.player.inventory.pop(index)
+			if item.habilidade == "buff_atk" or item.tipo == "buff_atk":
+				self.player.atk += int(item.valor)
+				atributo = "ATK"
+			else:
+				self.player.def_ += int(item.valor)
+				atributo = "DEF"
+			self.registrar_log(f"PLAYER usou {item.nome} (+{item.valor} {atributo})")
 		else:
 			self.registrar_log("ITEM NAO UTILIZAVEL")
 			return
@@ -327,8 +336,12 @@ class BattleState:
 		pyxel.text(8, 24, "PLAYER", 10)
 		self.desenhar_barra_hp(8, 32, 55, self.player.hp, self.player.max_hp, 11)
 		pyxel.text(8, 41, f"HP: {self.player.hp}/{self.player.max_hp}", 7)
-		pyxel.text(8, 49, f"ATK: {self.player.atk}", 7)
-		pyxel.text(8, 57, f"DEF: {self.player.def_}", 7)
+		bonus_atk = sum(getattr(item, "bonus_atk", 0) for item in self.player.equipamentos.values())
+		bonus_defesa = sum(getattr(item, "bonus_defesa", 0) for item in self.player.equipamentos.values())
+		texto_atk = f"ATK: {self.player.atk} +{bonus_atk}" if bonus_atk else f"ATK: {self.player.atk}"
+		texto_defesa = f"DEF: {self.player.def_} +{bonus_defesa}" if bonus_defesa else f"DEF: {self.player.def_}"
+		pyxel.text(8, 49, texto_atk, 7)
+		pyxel.text(8, 57, texto_defesa, 7)
 		pyxel.text(8, 65, f"SPD: {self.player.speed}", 7)
 
 		pyxel.text(90, 24, "ENEMY", 8)
@@ -357,7 +370,13 @@ class BattleState:
 						color = 10 if idx == self.selected_item_index else 7
 						y = 82 + idx * 9
 						pyxel.rectb(12, y, 136, 8, color)
-						pyxel.text(17, y + 1, f"{cursor}{item.nome} ({item.valor})", color)
+						if item.tipo == "arma":
+							resumo = f"ATK+{item.bonus_atk}"
+						elif item.tipo == "armadura":
+							resumo = f"DEF+{item.bonus_defesa}"
+						else:
+							resumo = f"{item.habilidade or item.tipo}:{item.valor}"
+						pyxel.text(17, y + 1, f"{cursor}{item.nome} {resumo}", color)
 				pyxel.text(58, 110, "ESC/X: VOLTAR", 6)
 			else:
 				pyxel.rect(4, 68, 152, 48, 0)

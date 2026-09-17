@@ -15,7 +15,8 @@ class Player:
 		self.inventory = []
 		self.defendendo = False
 		self.contra_atacando = False
-		self.equipamento = {"arma": None, "armadura": None}
+		self.equipamentos = {"arma": None, "armadura": None, "totem": None}
+		self.equipamento = self.equipamentos
 
 	def esta_vivo(self):
 		return self.hp > 0

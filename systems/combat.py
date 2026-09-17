@@ -19,13 +19,13 @@ def build_turn_order(combatants: Iterable[Any]) -> List[Any]:
 
 
 def obter_ataque_total(combatente: Any) -> int:
-    equipamentos = getattr(combatente, "equipamentos", {})
+    equipamentos = getattr(combatente, "equipamentos", getattr(combatente, "equipamento", {}))
     bonus = sum(getattr(item, "bonus_atk", 0) for item in equipamentos.values())
     return max(0, int(combatente.atk + bonus))
 
 
 def obter_defesa_total(combatente: Any) -> int:
-    equipamentos = getattr(combatente, "equipamentos", {})
+    equipamentos = getattr(combatente, "equipamentos", getattr(combatente, "equipamento", {}))
     bonus = sum(getattr(item, "bonus_defesa", 0) for item in equipamentos.values())
     return max(0, int(combatente.def_ + bonus))
 
