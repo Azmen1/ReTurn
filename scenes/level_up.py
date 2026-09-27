@@ -35,7 +35,8 @@ class LevelUpState:
 			self.pontos_restantes += 1
 
 		confirmou = (
-			pyxel.btnp(pyxel.KEY_RETURN)
+			pyxel.btnp(pyxel.KEY_SPACE)
+			or pyxel.btnp(pyxel.KEY_RETURN)
 			or pyxel.btnp(pyxel.KEY_KP_ENTER)
 			or pyxel.btnp(pyxel.KEY_Z)
 			or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)

@@ -60,7 +60,7 @@ class App:
 				self.wave_number = 1
 			self.change_state(BATTLE)
 
-		if (isinstance(self.current_state, GameOverState) or isinstance(self.current_state, VictoryState)) and pyxel.btnp(pyxel.KEY_R):
+		if (isinstance(self.current_state, GameOverState) or isinstance(self.current_state, VictoryState)) and pyxel.btnp(pyxel.KEY_SPACE):
 			if isinstance(self.current_state, GameOverState):
 				self.player = Player()
 				self.wave_number = 1

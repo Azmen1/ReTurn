@@ -157,7 +157,8 @@ class BattleState:
 		self.selected_action = row * 2 + column
 
 		confirmou = (
-			pyxel.btnp(pyxel.KEY_RETURN)
+			pyxel.btnp(pyxel.KEY_SPACE)
+			or pyxel.btnp(pyxel.KEY_RETURN)
 			or pyxel.btnp(pyxel.KEY_KP_ENTER)
 			or pyxel.btnp(pyxel.KEY_Z)
 			or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)
@@ -169,7 +170,7 @@ class BattleState:
 		if not self.player.inventory:
 			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.KEY_X):
 				self.waiting_item_menu = False
-			if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_KP_ENTER) or pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
+			if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_KP_ENTER) or pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
 				self.registrar_log("INVENTARIO VAZIO")
 				self.waiting_item_menu = False
 			return
@@ -186,7 +187,8 @@ class BattleState:
 			return
 
 		confirmou = (
-			pyxel.btnp(pyxel.KEY_RETURN)
+			pyxel.btnp(pyxel.KEY_SPACE)
+			or pyxel.btnp(pyxel.KEY_RETURN)
 			or pyxel.btnp(pyxel.KEY_KP_ENTER)
 			or pyxel.btnp(pyxel.KEY_Z)
 			or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)

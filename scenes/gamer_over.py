@@ -3,13 +3,13 @@ import pyxel
 
 class GameOverState:
 	def update(self):
-		if pyxel.btnp(pyxel.KEY_R):
+		if pyxel.btnp(pyxel.KEY_SPACE):
 			print("Reiniciando para MENU")
 
 	def draw(self):
 		pyxel.cls(2)
 		pyxel.text(40, 56, "GAME OVER", 7)
-		pyxel.text(26, 68, "Press R to restart", 6)
+		pyxel.text(22, 68, "Press SPACE to restart", 6)
 
 
 class VictoryState:
@@ -19,7 +19,7 @@ class VictoryState:
 		self.itens = payload.get("itens", [])
 
 	def update(self):
-		if pyxel.btnp(pyxel.KEY_R):
+		if pyxel.btnp(pyxel.KEY_SPACE):
 			print("Reiniciando para MENU")
 
 	def draw(self):
@@ -31,4 +31,4 @@ class VictoryState:
 			pyxel.text(8, 78, f"LOOT: {nomes}", 10)
 		else:
 			pyxel.text(8, 78, "LOOT: NENHUM", 5)
-		pyxel.text(26, 98, "Press R to restart", 6)
+		pyxel.text(22, 98, "Press SPACE to restart", 6)
