@@ -11,6 +11,8 @@ class Enemy:
 		self.speed = base_stats["speed"]
 		self.luck = base_stats["luck"]
 		self.level = base_stats["level"]
+		self.defendendo = False
+		self.contra_ataque = False
 
 	def esta_vivo(self):
 		return self.hp > 0

@@ -4,14 +4,14 @@ from data.items import ARMOR_ITEMS, CONSUMABLE_ITEMS, TOTEM_ITEMS, WEAPON_ITEMS
 from entities.item import Item
 
 
-def gerar_loot(enemy):
+def gerar_loot(enemy, player=None):
 	"""Generate consumable drops and XP from a defeated enemy.
 
 	Returns:
 		tuple[list[Item], int]: (dropped_items, xp_reward)
 	"""
 	nivel = int(getattr(enemy, "level", 1))
-	luck = int(getattr(enemy, "luck", 0))
+	luck = int(getattr(player if player is not None else enemy, "luck", 0))
 	atk = int(getattr(enemy, "atk", 0))
 	defesa = int(getattr(enemy, "def_", 0))
 

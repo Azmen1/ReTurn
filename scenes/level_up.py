@@ -14,6 +14,7 @@ class LevelUpState:
 		self.change_state = change_state
 		self.player = player
 		self.niveis_pendentes = int(payload.get("niveis_pendentes", 1))
+		self.recompensas = payload.get("recompensas", {"itens": [], "xp": 0})
 		self.pontos_restantes = LEVEL_UP_POINTS
 		self.selecionado = 0
 		self.distribuido = {stat: 0 for stat in STATS_DISPONIVEIS}
@@ -59,9 +60,12 @@ class LevelUpState:
 	def avancar(self):
 		restantes = self.niveis_pendentes - 1
 		if restantes > 0:
-			self.change_state(LEVEL_UP, {"niveis_pendentes": restantes})
+			self.change_state(LEVEL_UP, {
+				"niveis_pendentes": restantes,
+				"recompensas": self.recompensas,
+			})
 			return
-		self.change_state(MENU)
+		self.change_state("VICTORY", self.recompensas)
 
 	def draw(self):
 		pyxel.cls(4)

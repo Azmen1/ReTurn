@@ -8,8 +8,21 @@ def calcular_tier(wave_number: int) -> int:
 
 
 def gerar_stats_inimigo(tier: int) -> dict:
-	tier_disponivel = min(max(1, tier), max(ENEMY_STAT_RANGE_BY_TIER))
-	faixas = ENEMY_STAT_RANGE_BY_TIER[tier_disponivel]
+	tier_disponivel = max(1, tier)
+	ultimo_tier = max(ENEMY_STAT_RANGE_BY_TIER)
+	faixas_base = ENEMY_STAT_RANGE_BY_TIER[min(tier_disponivel, ultimo_tier)]
+	extra_tiers = max(0, tier_disponivel - ultimo_tier)
+	if extra_tiers:
+		faixas_anterior = ENEMY_STAT_RANGE_BY_TIER[ultimo_tier - 1]
+		faixas = {
+			stat: (
+				faixa[0] + (faixa[0] - faixas_anterior[stat][0]) * extra_tiers,
+				faixa[1] + (faixa[1] - faixas_anterior[stat][1]) * extra_tiers,
+			)
+			for stat, faixa in faixas_base.items()
+		}
+	else:
+		faixas = faixas_base
 	stats = {stat: random.randint(*faixa) for stat, faixa in faixas.items()}
 	stats["max_hp"] = stats["hp"]
 	stats["level"] = tier_disponivel

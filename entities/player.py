@@ -14,7 +14,7 @@ class Player:
 		self.xp = base_stats["xp"]
 		self.inventory = []
 		self.defendendo = False
-		self.contra_atacando = False
+		self.contra_ataque = False
 		self.equipamentos = {"arma": None, "armadura": None, "totem": None}
 		self.equipamento = self.equipamentos
 

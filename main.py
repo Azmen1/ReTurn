@@ -20,9 +20,10 @@ class App:
 	def __init__(self):
 		self.player = Player()
 		self.wave_number = 1
+		self.batalha_suspensa = None
 		self.state_classes = {
 			MENU: lambda payload=None: MenuState(),
-			BATTLE: lambda payload=None: BattleState(self.change_state, self.player, self.wave_number, self.advance_wave),
+			BATTLE: self.criar_batalha,
 			GAME_OVER: lambda payload=None: GameOverState(),
 			VICTORY: lambda payload=None: VictoryState(payload),
 			LEVEL_UP: lambda payload=None: LevelUpState(self.change_state, self.player, payload),
@@ -35,7 +36,16 @@ class App:
 		pyxel.init(160, 120, title="ReTurn", display_scale=8)
 		pyxel.run(self.update, self.draw)
 
+	def criar_batalha(self, payload=None):
+		if self.batalha_suspensa is not None:
+			batalha = self.batalha_suspensa
+			self.batalha_suspensa = None
+			return batalha
+		return BattleState(self.change_state, self.player, self.wave_number, self.advance_wave)
+
 	def change_state(self, state_name, payload=None):
+		if state_name == MENU and isinstance(payload, dict):
+			self.batalha_suspensa = payload.get("batalha_suspensa")
 		self.pending_state = state_name
 		self.pending_payload = payload
 		self.transition_frame = 1

@@ -27,6 +27,7 @@ class BattleState:
 		self.action_options = ["ATACAR", "ITEM", "DEFENDER", "FUGIR"]
 		self.selected_action = 0
 		self.selected_item_index = 0
+		self.items_per_page = 3
 		self.victory_resolved = False
 		self.damage_numbers = []
 		self.player.defendendo = False
@@ -58,9 +59,13 @@ class BattleState:
 
 	def iniciar_rodada(self):
 		self.round_number += 1
-		self.turn_order = build_turn_order([self.player, self.enemy])
+		self.player.defendendo = False
+		self.player.contra_ataque = False
+		self.enemy.defendendo = False
+		self.enemy.contra_ataque = False
+		self.turn_order = [self.player, self.enemy]
 		self.turn_index = 0
-		self.round_active = True	
+		self.round_active = True
 
 		nomes = {
 			self.player: "PLAYER",
@@ -94,7 +99,7 @@ class BattleState:
 				self.registrar_log("ESCOLHA A ACAO")
 				return
 
-			self.executar_ataque(combatente, alvo, nomes)
+			self.executar_acao_inimigo(combatente, alvo, nomes)
 			if not self.player.esta_vivo():
 				self.round_active = False
 				self.waiting_player_action = False
@@ -112,6 +117,14 @@ class BattleState:
 		self.round_active = False
 		if self.player.esta_vivo() and self.enemy.esta_vivo():
 			self.registrar_log("SPACE: NEXT ROUND")
+
+	def executar_acao_inimigo(self, inimigo, alvo, nomes):
+		acao = inimigo.escolher_acao()
+		if acao == "defender":
+			inimigo.defendendo = True
+			self.registrar_log("ENEMY entrou em DEFESA")
+			return
+		self.executar_ataque(inimigo, alvo, nomes)
 
 	def executar_ataque(self, atacante, alvo, nomes):
 		contra_ataque = getattr(atacante, "contra_ataque", False)
@@ -220,7 +233,7 @@ class BattleState:
 			sucesso = pyxel.rndi(1, 100) <= chance
 			if sucesso:
 				self.registrar_log(f"PLAYER conseguiu FUGIR ({chance}%)")
-				self.change_state(MENU)
+				self.change_state(MENU, {"batalha_suspensa": self})
 				return
 			self.registrar_log(f"PLAYER falhou ao FUGIR ({chance}%)")
 
@@ -284,7 +297,6 @@ class BattleState:
 			return
 
 		self.waiting_item_menu = False
-		self.consumir_turno_player()
 
 	def consumir_turno_player(self):
 		self.waiting_player_action = False
@@ -300,7 +312,10 @@ class BattleState:
 
 		niveis_subidos = verificar_level_up(self.player)
 		if niveis_subidos > 0:
-			self.change_state(LEVEL_UP, {"niveis_pendentes": niveis_subidos})
+			self.change_state(LEVEL_UP, {
+				"niveis_pendentes": niveis_subidos,
+				"recompensas": payload,
+			})
 			return
 
 		self.change_state(VICTORY, payload)
@@ -309,7 +324,7 @@ class BattleState:
 		if self.victory_resolved:
 			return {"itens": [], "xp": 0}
 
-		itens, xp = gerar_loot(self.enemy)
+		itens, xp = gerar_loot(self.enemy, self.player)
 		self.player.inventory.extend(itens)
 		self.player.xp += xp
 		self.victory_resolved = True
@@ -367,10 +382,12 @@ class BattleState:
 				if not self.player.inventory:
 					pyxel.text(68, 88, "(VAZIO)", 5)
 				else:
-					for idx, item in enumerate(self.player.inventory[:3]):
+					inicio = (self.selected_item_index // self.items_per_page) * self.items_per_page
+					fim = inicio + self.items_per_page
+					for idx, item in enumerate(self.player.inventory[inicio:fim], start=inicio):
 						cursor = ">" if idx == self.selected_item_index else " "
 						color = 10 if idx == self.selected_item_index else 7
-						y = 82 + idx * 9
+						y = 82 + (idx - inicio) * 9
 						pyxel.rectb(12, y, 136, 8, color)
 						if item.tipo == "arma":
 							resumo = f"ATK+{item.bonus_atk}"
@@ -379,6 +396,7 @@ class BattleState:
 						else:
 							resumo = f"{item.habilidade or item.tipo}:{item.valor}"
 						pyxel.text(17, y + 1, f"{cursor}{item.nome} {resumo}", color)
+					pyxel.text(112, 110, f"{inicio + 1}-{min(fim, len(self.player.inventory))}/{len(self.player.inventory)}", 6)
 				pyxel.text(58, 110, "ESC/X: VOLTAR", 6)
 			else:
 				pyxel.rect(4, 68, 152, 48, 0)
