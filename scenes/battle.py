@@ -1,9 +1,10 @@
 import pyxel
 from entities.enemy import Enemy
 from entities.player import Player
+from data.balance import MULTIPLICADOR_GOLPE_FORTE, TOTAL_WAVES
 from systems.combat import build_turn_order, calcular_dano, obter_ataque_total, obter_defesa_total
 from systems.loot import gerar_loot
-from systems.progression import calcular_tier, gerar_stats_inimigo, verificar_level_up
+from systems.progression import gerar_encontro, verificar_level_up
 
 VICTORY = "VICTORY"
 GAME_OVER = "GAME_OVER"
@@ -11,11 +12,13 @@ LEVEL_UP = "LEVEL_UP"
 MENU = "MENU"
 
 class BattleState:
-	def __init__(self, change_state, player, wave_number=1, advance_wave=None):
+	def __init__(self, change_state, player, wave_number=1, advance_wave=None, encounter_stats=None, finish_battle=None):
 		self.player = player
 		self.wave_number = wave_number
 		self.advance_wave = advance_wave
-		self.enemy = Enemy(gerar_stats_inimigo(calcular_tier(wave_number)))
+		self.finish_battle = finish_battle
+		self.encounter = encounter_stats or gerar_encontro(wave_number)
+		self.enemy = Enemy(self.encounter)
 		self.change_state = change_state
 		self.round_number = 0
 		self.battle_log = ["SPACE: NEXT ROUND"]
@@ -29,19 +32,25 @@ class BattleState:
 		self.selected_item_index = 0
 		self.items_per_page = 3
 		self.victory_resolved = False
+		self.completion_started = False
+		self.battle_result_resolved = False
 		self.damage_numbers = []
+		self.player_actions = 0
+		self.offensive_actions = 0
+		self.damage_received = 0
+		self.entry_hp = player.hp
 		self.player.defendendo = False
 		self.player.contra_ataque = False
 
 	def update(self):
 		self.atualizar_numeros_dano()
 
-		if self.enemy.hp <= 0:
-			self.ir_para_vitoria()
+		if self.player.hp <= 0:
+			self.ir_para_derrota()
 			return
 
-		if self.player.hp <= 0:
-			self.change_state(GAME_OVER)
+		if self.enemy.hp <= 0:
+			self.ir_para_vitoria()
 			return
 
 		if not self.player.esta_vivo() or not self.enemy.esta_vivo():
@@ -59,11 +68,7 @@ class BattleState:
 
 	def iniciar_rodada(self):
 		self.round_number += 1
-		self.player.defendendo = False
-		self.player.contra_ataque = False
-		self.enemy.defendendo = False
-		self.enemy.contra_ataque = False
-		self.turn_order = [self.player, self.enemy]
+		self.turn_order = build_turn_order((self.player, self.enemy))
 		self.turn_index = 0
 		self.round_active = True
 
@@ -103,7 +108,7 @@ class BattleState:
 			if not self.player.esta_vivo():
 				self.round_active = False
 				self.waiting_player_action = False
-				self.change_state(GAME_OVER)
+				self.ir_para_derrota()
 				return
 
 			if not self.enemy.esta_vivo():
@@ -120,19 +125,35 @@ class BattleState:
 
 	def executar_acao_inimigo(self, inimigo, alvo, nomes):
 		acao = inimigo.escolher_acao()
-		if acao == "defender":
+		if acao == "DEFENDER":
 			inimigo.defendendo = True
 			self.registrar_log("ENEMY entrou em DEFESA")
-			return
-		self.executar_ataque(inimigo, alvo, nomes)
+		elif acao == "PREPARAR":
+			self.registrar_log("ENEMY esta PREPARANDO")
+		elif acao == "RECOMPOR":
+			inimigo.recompor()
+			self.registrar_log("ENEMY RECOMPONDO")
+		elif acao == "GOLPE_FORTE":
+			if inimigo.preparado:
+				self.executar_ataque(inimigo, alvo, nomes, MULTIPLICADOR_GOLPE_FORTE)
+			else:
+				self.registrar_log("GOLPE FORTE CANCELADO")
+		else:
+			self.executar_ataque(inimigo, alvo, nomes)
+		inimigo.registrar_acao(acao)
 
-	def executar_ataque(self, atacante, alvo, nomes):
+	def executar_ataque(self, atacante, alvo, nomes, multiplicador_ataque=1.0):
 		contra_ataque = getattr(atacante, "contra_ataque", False)
 		bloqueou = getattr(alvo, "defendendo", False)
-		dano = calcular_dano(atacante, alvo)
+		dano = calcular_dano(atacante, alvo, multiplicador_ataque)
+		if alvo is self.player:
+			self.damage_received += dano
 		self.adicionar_numero_dano(alvo, dano)
 
-		verbo = "contra-atacou" if contra_ataque and dano > 0 else "atacou"
+		if multiplicador_ataque > 1.0 and dano > 0:
+			verbo = "GOLPE FORTE"
+		else:
+			verbo = "contra-atacou" if contra_ataque and dano > 0 else "atacou"
 		self.registrar_log(f"{nomes[atacante]} {verbo} {nomes[alvo]} ({dano})")
 		if bloqueou and dano > 0 and alvo.esta_vivo():
 			self.registrar_log(f"{nomes[alvo]}: CONTRA-ATAQUE PRONTO")
@@ -173,7 +194,6 @@ class BattleState:
 			pyxel.btnp(pyxel.KEY_SPACE)
 			or pyxel.btnp(pyxel.KEY_RETURN)
 			or pyxel.btnp(pyxel.KEY_KP_ENTER)
-			or pyxel.btnp(pyxel.KEY_Z)
 			or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)
 		)
 		if confirmou:
@@ -183,7 +203,7 @@ class BattleState:
 		if not self.player.inventory:
 			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.KEY_X):
 				self.waiting_item_menu = False
-			if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_KP_ENTER) or pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
+			if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_KP_ENTER) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
 				self.registrar_log("INVENTARIO VAZIO")
 				self.waiting_item_menu = False
 			return
@@ -216,6 +236,8 @@ class BattleState:
 		}
 
 		if action_index == 0:  # ATACAR
+			self.player_actions += 1
+			self.offensive_actions += 1
 			self.executar_ataque(self.player, self.enemy, nomes)
 			if not self.enemy.esta_vivo():
 				self.waiting_player_action = False
@@ -226,9 +248,11 @@ class BattleState:
 			self.abrir_menu_itens()
 			return
 		elif action_index == 2:  # DEFENDER
+			self.player_actions += 1
 			self.player.defendendo = True
 			self.registrar_log("PLAYER entrou em DEFESA")
 		elif action_index == 3:  # FUGIR
+			self.player_actions += 1
 			chance = self.calcular_chance_fuga()
 			sucesso = pyxel.rndi(1, 100) <= chance
 			if sucesso:
@@ -297,6 +321,8 @@ class BattleState:
 			return
 
 		self.waiting_item_menu = False
+		self.player_actions += 1
+		#self.consumir_turno_player()
 
 	def consumir_turno_player(self):
 		self.waiting_player_action = False
@@ -305,20 +331,45 @@ class BattleState:
 		self.processar_fila_turnos()
 
 	def ir_para_vitoria(self):
-		primeira_vitoria = not self.victory_resolved
+		if self.completion_started or not self.player.esta_vivo() or self.enemy.esta_vivo():
+			return
+		self.completion_started = True
 		payload = self.resolver_recompensa_vitoria()
-		if primeira_vitoria and self.advance_wave is not None:
-			self.advance_wave()
-
 		niveis_subidos = verificar_level_up(self.player)
+		payload.update({
+			"wave": self.wave_number,
+			"entry_hp": self.entry_hp,
+			"exit_hp": self.player.hp,
+			"player_actions": self.player_actions,
+			"offensive_actions": self.offensive_actions,
+			"damage_received": self.damage_received,
+			"encounter": self.encounter,
+			"niveis_subidos": niveis_subidos,
+		})
 		if niveis_subidos > 0:
 			self.change_state(LEVEL_UP, {
 				"niveis_pendentes": niveis_subidos,
 				"recompensas": payload,
+				"completion_payload": payload,
 			})
 			return
 
-		self.change_state(VICTORY, payload)
+		self.concluir_onda(payload)
+
+	def ir_para_derrota(self):
+		if self.battle_result_resolved:
+			return
+		self.battle_result_resolved = True
+		self.round_active = False
+		self.waiting_player_action = False
+		if self.finish_battle is not None:
+			self.finish_battle(self)
+		else:
+			self.change_state(GAME_OVER)
+
+	def concluir_onda(self, payload):
+		if self.advance_wave is not None:
+			self.advance_wave(payload)
 
 	def resolver_recompensa_vitoria(self):
 		if self.victory_resolved:
@@ -341,32 +392,44 @@ class BattleState:
 		pyxel.rect(x, y, int(largura * proporcao), 6, cor)
 		pyxel.rectb(x, y, largura, 6, 7)
 
+	def estado_inimigo(self):
+		if self.enemy.defendendo:
+			return "GUARDA ATIVA"
+		if self.enemy.contra_ataque:
+			return "CONTRA PRONTO"
+		if self.enemy.preparado:
+			return "PREPARANDO"
+		return ""
+
 	def draw(self):
 		pyxel.cls(1)
 		pyxel.text(56, 8, "BATTLE", 7)
-		pyxel.text(112, 8, f"ONDA: {self.wave_number}", 10)
+		pyxel.text(82, 8, f"ONDA: {self.wave_number}/{TOTAL_WAVES} T{self.enemy.tier}", 10)
+		'''
 		if not self.round_active and not self.waiting_player_action:
 			pyxel.text(8, 14, "SPACE: NEXT ROUND", 6)
 		else:
 			pyxel.text(8, 14, "ARROWS + ENTER/Z", 6)
-
-		pyxel.text(8, 24, "PLAYER", 10)
-		self.desenhar_barra_hp(8, 32, 55, self.player.hp, self.player.max_hp, 11)
-		pyxel.text(8, 41, f"HP: {self.player.hp}/{self.player.max_hp}", 7)
+'''
+		pyxel.text(8, 20, "PLAYER", 10)
+		self.desenhar_barra_hp(8, 28, 55, self.player.hp, self.player.max_hp, 11)
+		pyxel.text(8, 37, f"HP: {self.player.hp}/{self.player.max_hp}", 7)
 		bonus_atk = sum(getattr(item, "bonus_atk", 0) for item in self.player.equipamentos.values())
 		bonus_defesa = sum(getattr(item, "bonus_defesa", 0) for item in self.player.equipamentos.values())
 		texto_atk = f"ATK: {self.player.atk} +{bonus_atk}" if bonus_atk else f"ATK: {self.player.atk}"
 		texto_defesa = f"DEF: {self.player.def_} +{bonus_defesa}" if bonus_defesa else f"DEF: {self.player.def_}"
-		pyxel.text(8, 49, texto_atk, 7)
-		pyxel.text(8, 57, texto_defesa, 7)
-		pyxel.text(8, 65, f"SPD: {self.player.speed}", 7)
+		pyxel.text(8, 45, texto_atk, 7)
+		pyxel.text(8, 53, texto_defesa, 7)
+		pyxel.text(8, 61, f"SPD: {self.player.speed}", 7)
 
-		pyxel.text(90, 24, "ENEMY", 8)
-		self.desenhar_barra_hp(90, 32, 55, self.enemy.hp, self.enemy.max_hp, 8)
-		pyxel.text(90, 41, f"HP: {self.enemy.hp}/{self.enemy.max_hp}", 7)
-		pyxel.text(90, 49, f"ATK: {self.enemy.atk}", 7)
-		pyxel.text(90, 57, f"DEF: {self.enemy.def_}", 7)
-		pyxel.text(90, 65, f"SPD: {self.enemy.speed}", 7)
+		pyxel.text(90, 12, self.enemy.name, 8)
+		pyxel.text(90, 20, f"{self.enemy.category} {self.enemy.archetype}", 8)
+		self.desenhar_barra_hp(90, 28, 55, self.enemy.hp, self.enemy.max_hp, 8)
+		pyxel.text(90, 37, f"HP: {self.enemy.hp}/{self.enemy.max_hp}", 7)
+		pyxel.text(90, 45, f"ATK: {self.enemy.atk}", 7)
+		pyxel.text(90, 53, f"DEF: {self.enemy.def_}", 7)
+		pyxel.text(90, 61, f"SPD: {self.enemy.speed}", 7)
+		pyxel.text(90, 77, self.estado_inimigo(), 6)
 
 		for numero in self.damage_numbers:
 			pyxel.text(numero["x"], numero["y"], f"-{numero['valor']}", 8)
@@ -400,7 +463,7 @@ class BattleState:
 				pyxel.text(58, 110, "ESC/X: VOLTAR", 6)
 			else:
 				pyxel.rect(4, 68, 152, 48, 0)
-				pyxel.rectb(4, 68, 152, 48, 7)
+				pyxel.rectb(4, 68, 152, 48, 7) #borda branca das opções de ação
 				pyxel.text(72, 72, "ACAO", 10)
 				for idx, option in enumerate(self.action_options):
 					color = 10 if idx == self.selected_action else 7

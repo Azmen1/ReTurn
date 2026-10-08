@@ -1,0 +1,535 @@
+[
+  {
+    "result": "DERROTA",
+    "final_wave": 4,
+    "waves_won": 3,
+    "duration_seconds": 27.6,
+    "encounters": [
+      {
+        "wave": 1,
+        "tier": 1,
+        "category": "COMUM",
+        "profile": "BASICO",
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "entry_hp": 30,
+        "exit_hp": 18
+      },
+      {
+        "wave": 2,
+        "tier": 1,
+        "category": "COMUM",
+        "profile": "BASICO",
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 5,
+        "entry_hp": 18,
+        "exit_hp": 12
+      },
+      {
+        "wave": 3,
+        "tier": 1,
+        "category": "COMUM",
+        "profile": "BASICO",
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "entry_hp": 22,
+        "exit_hp": 6
+      },
+      {
+        "wave": 4,
+        "tier": 1,
+        "category": "ELITE",
+        "profile": "BASICO",
+        "result": "DERROTA",
+        "actions": 5,
+        "offensive_actions": 4,
+        "entry_hp": 6,
+        "exit_hp": 0
+      }
+    ]
+  },
+  {
+    "result": "DERROTA",
+    "final_wave": 5,
+    "waves_won": 4,
+    "duration_seconds": 52.5,
+    "encounters": [
+      {
+        "wave": 1,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BASICO",
+        "pattern": [
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "entry_hp": 30,
+        "exit_hp": 18
+      },
+      {
+        "wave": 2,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 6,
+        "entry_hp": 18,
+        "exit_hp": 4
+      },
+      {
+        "wave": 3,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 5,
+        "entry_hp": 14,
+        "exit_hp": 16
+      },
+      {
+        "wave": 4,
+        "tier": 1,
+        "category": "ELITE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "ATACAR",
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 8,
+        "offensive_actions": 7,
+        "entry_hp": 16,
+        "exit_hp": 7
+      },
+      {
+        "wave": 5,
+        "tier": 1,
+        "category": "CHEFE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR",
+          "ATACAR"
+        ],
+        "result": "DERROTA",
+        "actions": 7,
+        "offensive_actions": 6,
+        "entry_hp": 17,
+        "exit_hp": 0
+      }
+    ]
+  },
+  {
+    "result": "DERROTA",
+    "final_wave": 5,
+    "waves_won": 4,
+    "duration_seconds": 57.6,
+    "encounters": [
+      {
+        "wave": 1,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BASICO",
+        "pattern": [
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "entry_hp": 30,
+        "exit_hp": 18
+      },
+      {
+        "wave": 2,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 6,
+        "entry_hp": 18,
+        "exit_hp": 4
+      },
+      {
+        "wave": 3,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 5,
+        "entry_hp": 14,
+        "exit_hp": 16
+      },
+      {
+        "wave": 4,
+        "tier": 1,
+        "category": "ELITE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "ATACAR",
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 8,
+        "offensive_actions": 7,
+        "entry_hp": 16,
+        "exit_hp": 7
+      },
+      {
+        "wave": 5,
+        "tier": 1,
+        "category": "CHEFE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR",
+          "ATACAR"
+        ],
+        "result": "DERROTA",
+        "actions": 9,
+        "offensive_actions": 8,
+        "entry_hp": 17,
+        "exit_hp": 0
+      }
+    ]
+  },
+  {
+    "result": "DERROTA",
+    "final_wave": 5,
+    "waves_won": 4,
+    "duration_seconds": 49.5,
+    "encounters": [
+      {
+        "wave": 1,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BASICO",
+        "pattern": [
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "entry_hp": 30,
+        "exit_hp": 18
+      },
+      {
+        "wave": 2,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 6,
+        "entry_hp": 18,
+        "exit_hp": 4
+      },
+      {
+        "wave": 3,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 7,
+        "offensive_actions": 5,
+        "entry_hp": 14,
+        "exit_hp": 26
+      },
+      {
+        "wave": 4,
+        "tier": 1,
+        "category": "ELITE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "ATACAR",
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 7,
+        "offensive_actions": 7,
+        "entry_hp": 26,
+        "exit_hp": 7
+      },
+      {
+        "wave": 5,
+        "tier": 1,
+        "category": "CHEFE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR",
+          "ATACAR"
+        ],
+        "result": "DERROTA",
+        "actions": 12,
+        "offensive_actions": 10,
+        "entry_hp": 17,
+        "exit_hp": 0
+      }
+    ]
+  },
+  {
+    "result": "DERROTA",
+    "final_wave": 4,
+    "waves_won": 3,
+    "duration_seconds": 25.0,
+    "encounters": [
+      {
+        "wave": 1,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BASICO",
+        "pattern": [
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "damage_received": 12,
+        "entry_hp": 30,
+        "exit_hp": 18
+      },
+      {
+        "wave": 2,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 6,
+        "damage_received": 14,
+        "entry_hp": 18,
+        "exit_hp": 4
+      },
+      {
+        "wave": 3,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "damage_received": 8,
+        "entry_hp": 14,
+        "exit_hp": 6
+      },
+      {
+        "wave": 4,
+        "tier": 1,
+        "category": "ELITE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "ATACAR",
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "DERROTA",
+        "actions": 6,
+        "offensive_actions": 5,
+        "damage_received": 16,
+        "entry_hp": 6,
+        "exit_hp": 0
+      }
+    ]
+  },
+  {
+    "result": "DERROTA",
+    "final_wave": 8,
+    "waves_won": 7,
+    "duration_seconds": 55.6,
+    "encounters": [
+      {
+        "wave": 1,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BASICO",
+        "pattern": [
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "damage_received": 12,
+        "entry_hp": 30,
+        "exit_hp": 18
+      },
+      {
+        "wave": 2,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 4,
+        "damage_received": 7,
+        "entry_hp": 18,
+        "exit_hp": 11
+      },
+      {
+        "wave": 3,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 4,
+        "damage_received": 8,
+        "entry_hp": 21,
+        "exit_hp": 23
+      },
+      {
+        "wave": 4,
+        "tier": 1,
+        "category": "ELITE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "ATACAR",
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "damage_received": 14,
+        "entry_hp": 23,
+        "exit_hp": 9
+      },
+      {
+        "wave": 5,
+        "tier": 1,
+        "category": "CHEFE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR",
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 9,
+        "offensive_actions": 8,
+        "damage_received": 23,
+        "entry_hp": 19,
+        "exit_hp": 6
+      },
+      {
+        "wave": 6,
+        "tier": 2,
+        "category": "COMUM",
+        "archetype": "GUARDIAO",
+        "pattern": [
+          "DEFENDER",
+          "ATACAR",
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 7,
+        "offensive_actions": 6,
+        "damage_received": 16,
+        "entry_hp": 21,
+        "exit_hp": 15
+      },
+      {
+        "wave": 7,
+        "tier": 2,
+        "category": "COMUM",
+        "archetype": "GUARDIAO",
+        "pattern": [
+          "DEFENDER",
+          "ATACAR",
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 9,
+        "offensive_actions": 7,
+        "damage_received": 14,
+        "entry_hp": 25,
+        "exit_hp": 21
+      },
+      {
+        "wave": 8,
+        "tier": 2,
+        "category": "COMUM",
+        "archetype": "BASICO",
+        "pattern": [
+          "ATACAR"
+        ],
+        "result": "DERROTA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "damage_received": 21,
+        "entry_hp": 21,
+        "exit_hp": 0
+      }
+    ]
+  }
+]

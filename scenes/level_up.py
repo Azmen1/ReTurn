@@ -15,6 +15,7 @@ class LevelUpState:
 		self.player = player
 		self.niveis_pendentes = int(payload.get("niveis_pendentes", 1))
 		self.recompensas = payload.get("recompensas", {"itens": [], "xp": 0})
+		self.completion_payload = payload.get("completion_payload", self.recompensas)
 		self.pontos_restantes = LEVEL_UP_POINTS
 		self.selecionado = 0
 		self.distribuido = {stat: 0 for stat in STATS_DISPONIVEIS}
@@ -63,9 +64,10 @@ class LevelUpState:
 			self.change_state(LEVEL_UP, {
 				"niveis_pendentes": restantes,
 				"recompensas": self.recompensas,
+				"completion_payload": self.completion_payload,
 			})
 			return
-		self.change_state("VICTORY", self.recompensas)
+		self.change_state("WAVE_COMPLETE", self.completion_payload)
 
 	def draw(self):
 		pyxel.cls(4)

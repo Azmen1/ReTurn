@@ -38,7 +38,7 @@ def aplicar_dano(alvo: Any, dano: int) -> int:
     return dano_aplicado
 
 
-def calcular_dano_bruto(atacante: Any, alvo: Any) -> int:
+def calcular_dano_bruto(atacante: Any, alvo: Any, multiplicador_ataque: float = 1.0) -> int:
     """Prevê o dano após mitigação, sem alterar HP nem consumir efeitos."""
     if atacante.hp <= 0 or alvo.hp <= 0:
         return 0
@@ -48,9 +48,8 @@ def calcular_dano_bruto(atacante: Any, alvo: Any) -> int:
     if ataque == 0:
         return 0
 
-    dano = ataque
-    if getattr(atacante, "contra_ataque", False):
-        dano *= MULTIPLICADOR_CONTRA_ATAQUE
+    multiplicador_contra = MULTIPLICADOR_CONTRA_ATAQUE if getattr(atacante, "contra_ataque", False) else 1.0
+    dano = ataque * max(multiplicador_ataque, multiplicador_contra)
 
     dano *= DEFESA_ESCALA / (DEFESA_ESCALA + defesa)
 
@@ -61,9 +60,9 @@ def calcular_dano_bruto(atacante: Any, alvo: Any) -> int:
     return max(DANO_MINIMO, floor(dano + 0.5))
 
 
-def calcular_dano(atacante: Any, alvo: Any) -> int:
+def calcular_dano(atacante: Any, alvo: Any, multiplicador_ataque: float = 1.0) -> int:
     """Resolve um ataque completo e retorna o HP efetivamente removido."""
-    dano = calcular_dano_bruto(atacante, alvo)
+    dano = calcular_dano_bruto(atacante, alvo, multiplicador_ataque)
     if dano <= 0:
         return 0
 
