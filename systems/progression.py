@@ -37,7 +37,8 @@ def dados_encontro(wave_number: int, rng=None) -> dict:
 		name = boss["name"]
 		pattern = boss["pattern"]
 	elif category == "ELITE":
-		archetype = ELITE_ARCHETYPE_BY_TIER[calcular_tier(wave_number)]
+		candidates = ELITE_ARCHETYPE_BY_TIER[calcular_tier(wave_number)]
+		archetype = rng.choice(candidates)
 		name = ELITE_NAMES[archetype]
 		pattern = ELITE_PATTERNS[archetype]
 	else:
@@ -61,8 +62,20 @@ def dados_encontro(wave_number: int, rng=None) -> dict:
 
 def _interpolar(referencias: dict, wave_number: int) -> dict:
 	marcos = INTERPOLATION_WAVES
+	if not marcos:
+		raise ValueError("INTERPOLATION_WAVES nao pode ser vazia")
+	if any(inicio >= fim for inicio, fim in zip(marcos, marcos[1:])):
+		raise ValueError("INTERPOLATION_WAVES deve estar em ordem crescente")
+	ausentes = [marco for marco in marcos if marco not in referencias]
+	if ausentes:
+		raise ValueError(f"Referencias ausentes para marcos: {ausentes}")
+	stats_esperados = set(referencias[marcos[0]])
+	for marco in marcos[1:]:
+		if set(referencias[marco]) != stats_esperados:
+			raise ValueError(f"Referencias inconsistentes no marco: {marco}")
+
 	if wave_number >= marcos[-1]:
-		return dict(referencias[16])
+		return dict(referencias[marcos[-1]])
 	for inicio, fim in zip(marcos, marcos[1:]):
 		if inicio <= wave_number <= fim:
 			fracao = (wave_number - inicio) / (fim - inicio)
@@ -70,7 +83,7 @@ def _interpolar(referencias: dict, wave_number: int) -> dict:
 				stat: referencias[inicio][stat] + (referencias[fim][stat] - referencias[inicio][stat]) * fracao
 				for stat in referencias[inicio]
 			}
-	return dict(referencias[1])
+	return dict(referencias[marcos[0]])
 
 
 def _referencias_por_onda() -> dict:

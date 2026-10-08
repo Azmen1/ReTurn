@@ -129,7 +129,7 @@ class BattleState:
 			inimigo.defendendo = True
 			self.registrar_log("ENEMY entrou em DEFESA")
 		elif acao == "PREPARAR":
-			self.registrar_log("ENEMY esta PREPARANDO")
+			pass
 		elif acao == "RECOMPOR":
 			inimigo.recompor()
 			self.registrar_log("ENEMY RECOMPONDO")
@@ -155,9 +155,6 @@ class BattleState:
 		else:
 			verbo = "contra-atacou" if contra_ataque and dano > 0 else "atacou"
 		self.registrar_log(f"{nomes[atacante]} {verbo} {nomes[alvo]} ({dano})")
-		if bloqueou and dano > 0 and alvo.esta_vivo():
-			self.registrar_log(f"{nomes[alvo]}: CONTRA-ATAQUE PRONTO")
-
 		if not alvo.esta_vivo():
 			self.registrar_log(f"{nomes[alvo]} DERROTADO")
 
@@ -395,10 +392,6 @@ class BattleState:
 	def estado_inimigo(self):
 		if self.enemy.defendendo:
 			return "GUARDA ATIVA"
-		if self.enemy.contra_ataque:
-			return "CONTRA PRONTO"
-		if self.enemy.preparado:
-			return "PREPARANDO"
 		return ""
 
 	def draw(self):

@@ -531,5 +531,186 @@
         "exit_hp": 0
       }
     ]
+  },
+  {
+    "result": "DERROTA",
+    "final_wave": 10,
+    "waves_won": 9,
+    "duration_seconds": 106.6,
+    "encounters": [
+      {
+        "wave": 1,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BASICO",
+        "pattern": [
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 5,
+        "offensive_actions": 5,
+        "damage_received": 12,
+        "entry_hp": 30,
+        "exit_hp": 18
+      },
+      {
+        "wave": 2,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 7,
+        "offensive_actions": 6,
+        "damage_received": 12,
+        "entry_hp": 18,
+        "exit_hp": 6
+      },
+      {
+        "wave": 3,
+        "tier": 1,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 4,
+        "damage_received": 7,
+        "entry_hp": 16,
+        "exit_hp": 19
+      },
+      {
+        "wave": 4,
+        "tier": 1,
+        "category": "ELITE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "ATACAR",
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 5,
+        "damage_received": 13,
+        "entry_hp": 19,
+        "exit_hp": 16
+      },
+      {
+        "wave": 5,
+        "tier": 1,
+        "category": "CHEFE",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR",
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 8,
+        "offensive_actions": 7,
+        "damage_received": 23,
+        "entry_hp": 26,
+        "exit_hp": 13
+      },
+      {
+        "wave": 6,
+        "tier": 2,
+        "category": "COMUM",
+        "archetype": "GUARDIAO",
+        "pattern": [
+          "DEFENDER",
+          "ATACAR",
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 6,
+        "offensive_actions": 6,
+        "damage_received": 16,
+        "entry_hp": 28,
+        "exit_hp": 12
+      },
+      {
+        "wave": 7,
+        "tier": 2,
+        "category": "COMUM",
+        "archetype": "GUARDIAO",
+        "pattern": [
+          "DEFENDER",
+          "ATACAR",
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 10,
+        "offensive_actions": 7,
+        "damage_received": 18,
+        "entry_hp": 17,
+        "exit_hp": 19
+      },
+      {
+        "wave": 8,
+        "tier": 2,
+        "category": "COMUM",
+        "archetype": "BRUTO",
+        "pattern": [
+          "PREPARAR",
+          "GOLPE_FORTE",
+          "RECOMPOR"
+        ],
+        "result": "VITORIA",
+        "actions": 7,
+        "offensive_actions": 6,
+        "damage_received": 18,
+        "entry_hp": 19,
+        "exit_hp": 11
+      },
+      {
+        "wave": 9,
+        "tier": 2,
+        "category": "ELITE",
+        "archetype": "GUARDIAO",
+        "pattern": [
+          "DEFENDER",
+          "ATACAR",
+          "DEFENDER",
+          "ATACAR"
+        ],
+        "result": "VITORIA",
+        "actions": 11,
+        "offensive_actions": 10,
+        "damage_received": 28,
+        "entry_hp": 21,
+        "exit_hp": 3
+      },
+      {
+        "wave": 10,
+        "tier": 2,
+        "category": "CHEFE",
+        "archetype": "GUARDIAO",
+        "pattern": [
+          "DEFENDER",
+          "ATACAR",
+          "ATACAR",
+          "ATACAR",
+          "RECOMPOR"
+        ],
+        "result": "DERROTA",
+        "actions": 4,
+        "offensive_actions": 2,
+        "damage_received": 13,
+        "entry_hp": 3,
+        "exit_hp": 0
+      }
+    ]
   }
 ]
